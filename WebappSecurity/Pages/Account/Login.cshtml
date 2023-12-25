@@ -1,0 +1,66 @@
+@page
+@model WebappSecurity.Pages.Account.LoginModel
+@{
+    ViewData["Titile"] = "Login";
+}
+
+<div class="row">
+    <div class=" d-flex justify-content-center">
+        <div class="col-6 p-4 border" style="background-color: rgb(200, 196, 196); border-radius:0.8rem">
+            <form method="post">
+
+                <div class=" mb-3 row">
+                    <div class="col-3">
+                        <label asp-for="Credential.UserName" class=" form-label"></label>
+                    </div>
+                    <div class="col">
+                        <input type="text" asp-for="Credential.UserName" class=" form-control">
+                        <span asp-validation-for="Credential.UserName" class=" text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 row ">
+                    <div class="col-3">
+                        <label asp-for="Credential.Password" class=" form-label"></label>
+                    </div>
+                    <div class=" col">
+                        <input asp-for="Credential.Password" class=" form-control">
+                        <span class=" text-danger" asp-validation-for="Credential.Password"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-3">
+
+                    </div>
+                    <div class="col">
+                        <div class="d-flex justify-content-between">
+                            <div class=" form-check">
+                                <input type="checkbox" asp-for="Credential.RememberMe" class=" form-check-input">
+                                <label asp-for="Credential.RememberMe" class=" ml-2 form-check-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3">
+
+                    </div>
+                    <div class="col">
+                        <div class="d-flex justify-content-between">
+                            <input type="submit" value="Login" class=" btn btn-login btn-info">
+                            <input type="button" value="Cancel" class=" btn btn-login btn-danger">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="mt-3 d-flex justify-content-center">
+                        <div class=" text-danger" asp-validation-summary="All"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
