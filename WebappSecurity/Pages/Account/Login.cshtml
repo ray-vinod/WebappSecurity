@@ -1,5 +1,5 @@
 @page
-@model WebappSecurity.Pages.Account.LoginModel
+@model LoginModel
 @{
     ViewData["Titile"] = "Login";
 }
@@ -30,9 +30,7 @@
                 </div>
 
                 <div class="mb-3 row">
-                    <div class="col-3">
-
-                    </div>
+                    <div class="col-3"> </div>
                     <div class="col">
                         <div class="d-flex justify-content-between">
                             <div class=" form-check">
@@ -45,19 +43,12 @@
 
                 <div class="row">
                     <div class="col-3">
-
                     </div>
                     <div class="col">
                         <div class="d-flex justify-content-between">
-                            <input type="submit" value="Login" class=" btn btn-login btn-info">
-                            <input type="button" value="Cancel" class=" btn btn-login btn-danger">
+                            <input type="submit" value="Login" class="btn btn-info fs-5 form-control mx-1">
+                            <input type="button" value="Cancel" class="btn btn-danger fs-5 form-control mx-1">
                         </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="mt-3 d-flex justify-content-center">
-                        <div class=" text-danger" asp-validation-summary="All"></div>
                     </div>
                 </div>
             </form>

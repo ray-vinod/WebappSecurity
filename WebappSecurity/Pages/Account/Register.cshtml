@@ -1,0 +1,97 @@
+@page
+@model RegisterModel
+@using Dtos
+@{
+    ViewData["Title"] = "Register";
+    var keys = ModelState.Keys;
+}
+
+
+<div class="row">
+    <div class=" d-flex justify-content-center">
+        <div class="col-6 p-4 border" style="background-color: rgb(200, 196, 196); border-radius:0.8rem">
+
+            <div class="mb-3 d-flex justify-content-center">
+                <h3>User Details</h3>
+            </div>
+
+            <form method="post">
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Input.FirstName" class=" form-label"></label>
+                    </div>
+                    <div class="col">
+                        <input type="text" asp-for="Input.FirstName" class=" form-control">
+                        <span asp-validation-for="Input.FirstName   " class=" text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Input.FirstName" class=" form-label"></label>
+                    </div>
+                    <div class="col">
+                        <input type="text" asp-for="Input.LastName" class=" form-control">
+                        <span asp-validation-for="Input.LastName" class=" text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Input.Email" class=" form-label"></label>
+                    </div>
+                    <div class="col">
+                        <input type="email" asp-for="Input.Email" class=" form-control">
+                        <span asp-validation-for="Input.Email" class=" text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Input.Password" class=" form-label"></label>
+                    </div>
+                    <div class="col">
+                        <input type="password" asp-for="Input.Password" class=" form-control">
+                        <ul class=" text-decoration-none list-unstyled">
+                            @if (keys.Count() > 0)
+                            {
+                                var key = keys.Select(x => x == "Input.Password").ToString();
+
+                                var errors = ModelState[key!]?.Errors.Select(x => x.ErrorMessage);
+                                foreach (var error in errors!)
+                                {
+                                    <li class=" text-danger">@error</li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Input.ConfirmPassword" class=" form-label"></label>
+                    </div>
+                    <div class="col">
+                        <input type="password" asp-for="Input.ConfirmPassword" class=" form-control">
+                        <span asp-validation-for="Input.ConfirmPassword" class=" text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4"></div>
+                    <div class="col">
+                        <div class=" d-flex justify-content-between">
+                            <input type="submit" value="Register" class=" btn btn-info fs-5 form-control mx-1">
+                            <button class="btn btn-danger fs-5 form-control mx-1" asp-action="Cancel">Cacel</button>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="../Shared/_ValidationScriptsPartial.cshtml"></partial>
+}

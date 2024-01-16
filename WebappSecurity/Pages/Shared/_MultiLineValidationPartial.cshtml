@@ -1,0 +1,19 @@
+@using Dtos
+@model string
+
+<ul class=" text-decoration-none list-unstyled">
+    @{
+        var fKeys = ViewData.ModelState.Keys;
+
+        if (fKeys.Count() > 0)
+        {
+            var key = fKeys.Select(x => x == Model).ToString();
+
+            var errors = ViewData.ModelState[key!]?.Errors.Select(x => x.ErrorMessage);
+            foreach (var error in errors!)
+            {
+                <li class=" text-danger">@error</li>
+            }
+        }
+    }
+</ul>

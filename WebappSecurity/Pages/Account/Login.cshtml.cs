@@ -1,58 +1,59 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using WebappSecurity.Models;
+using WebappSecurity.Constants;
+using WebappSecurity.Dtos;
+using WebappSecurity.Models.Identity;
 
 namespace WebappSecurity.Pages.Account;
-public class LoginModel : PageModel
+public class LoginModel(
+    UserManager<AppUser> userManager,
+    SignInManager<AppUser> signInManager) : PageModel
 {
+    private readonly UserManager<AppUser> _userManager = userManager;
+    private readonly SignInManager<AppUser> _signInManager = signInManager;
 
     [BindProperty]
-    public Credential Credential { get; set; } = new();
+    public CredentialDto Credential { get; set; } = new();
 
     public string? ReturnURL { get; set; }
 
     public void OnGet()
     {
-
     }
 
     public async Task<IActionResult> OnPostAsync(string? returnURL = null)
     {
-        ReturnURL = returnURL ?? "/Index";
+        ReturnURL = returnURL ?? "/home";
 
         if (!ModelState.IsValid) return Page();
 
-        if (Credential.UserName == "admin@info.com" && Credential.Password == "password")
+        var user = await _userManager.FindByEmailAsync(Credential.UserName!);
+        if (user == null)
         {
-            // claims
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.Email,Credential.UserName),
-                new(ClaimTypes.Name,Credential.UserName),
-                new(ClaimTypes.Role,"Admin"),
-            };
-
-            // create identity
-            var identity = new ClaimsIdentity(claims, "appCookie");
-
-            // identity principle
-            var principle = new ClaimsPrincipal(identity);
-
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = Credential.RememberMe,
-                RedirectUri = ReturnURL
-            };
-
-            await HttpContext.SignInAsync("appCookie", principle, authProperties);
+            ModelState.AddModelError("Credential.UserName", "Invalid user name or email");
+            return Page();
         }
-        else
+
+        var isValidPassword = await _userManager.CheckPasswordAsync(user, Credential.Password!);
+        if (!isValidPassword)
         {
-            ModelState.AddModelError("", "Invalid (user Name/Password) login attempt");
+            ModelState.AddModelError("Credential.Password", "Invalid Password");
+            return Page();
         }
+
+        var authProperties = new AuthenticationProperties
+        {
+            IsPersistent = Credential.RememberMe,
+            RedirectUri = ReturnURL,
+        };
+
+        _signInManager.AuthenticationScheme = Config.SchemeName;
+        await _signInManager.SignInAsync(user, authProperties);
 
         return Page();
     }
+
+
 }
