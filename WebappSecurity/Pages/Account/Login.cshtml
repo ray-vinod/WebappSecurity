@@ -11,21 +11,21 @@
 
                 <div class=" mb-3 row">
                     <div class="col-3">
-                        <label asp-for="Credential.UserName" class=" form-label"></label>
+                        <label asp-for="Input.UserName" class=" form-label"></label>
                     </div>
                     <div class="col">
-                        <input type="text" asp-for="Credential.UserName" class=" form-control">
-                        <span asp-validation-for="Credential.UserName" class=" text-danger"></span>
+                        <input type="text" asp-for="Input.UserName" class=" form-control">
+                        <span asp-validation-for="Input.UserName" class=" text-danger"></span>
                     </div>
                 </div>
 
                 <div class="mb-3 row ">
                     <div class="col-3">
-                        <label asp-for="Credential.Password" class=" form-label"></label>
+                        <label asp-for="Input.Password" class=" form-label"></label>
                     </div>
                     <div class=" col">
-                        <input asp-for="Credential.Password" class=" form-control">
-                        <span class=" text-danger" asp-validation-for="Credential.Password"></span>
+                        <input asp-for="Input.Password" class=" form-control">
+                        <span class=" text-danger" asp-validation-for="Input.Password"></span>
                     </div>
                 </div>
 
@@ -34,8 +34,8 @@
                     <div class="col">
                         <div class="d-flex justify-content-between">
                             <div class=" form-check">
-                                <input type="checkbox" asp-for="Credential.RememberMe" class=" form-check-input">
-                                <label asp-for="Credential.RememberMe" class=" ml-2 form-check-label"></label>
+                                <input type="checkbox" asp-for="Input.RememberMe" class=" form-check-input">
+                                <label asp-for="Input.RememberMe" class=" ml-2 form-check-label"></label>
                             </div>
                         </div>
                     </div>
@@ -46,8 +46,8 @@
                     </div>
                     <div class="col">
                         <div class="d-flex justify-content-between">
-                            <input type="submit" value="Login" class="btn btn-info fs-5 form-control mx-1">
-                            <input type="button" value="Cancel" class="btn btn-danger fs-5 form-control mx-1">
+                            <input type="submit" value="Login" class="btn btn-info fs-6 form-control mx-1">
+                            <input type="button" value="Cancel" class="btn btn-danger fs-6 form-control mx-1">
                         </div>
                     </div>
                 </div>

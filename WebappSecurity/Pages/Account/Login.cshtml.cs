@@ -15,7 +15,7 @@ public class LoginModel(
     private readonly SignInManager<AppUser> _signInManager = signInManager;
 
     [BindProperty]
-    public CredentialDto Credential { get; set; } = new();
+    public CredentialDto Input { get; set; } = new();
 
     public string? ReturnURL { get; set; }
 
@@ -29,23 +29,23 @@ public class LoginModel(
 
         if (!ModelState.IsValid) return Page();
 
-        var user = await _userManager.FindByEmailAsync(Credential.UserName!);
+        var user = await _userManager.FindByEmailAsync(Input.UserName!);
         if (user == null)
         {
-            ModelState.AddModelError("Credential.UserName", "Invalid user name or email");
+            ModelState.AddModelError("Input.UserName", "Invalid user name or email");
             return Page();
         }
 
-        var isValidPassword = await _userManager.CheckPasswordAsync(user, Credential.Password!);
+        var isValidPassword = await _userManager.CheckPasswordAsync(user, Input.Password!);
         if (!isValidPassword)
         {
-            ModelState.AddModelError("Credential.Password", "Invalid Password");
+            ModelState.AddModelError("Input.Password", "Invalid Password");
             return Page();
         }
 
         var authProperties = new AuthenticationProperties
         {
-            IsPersistent = Credential.RememberMe,
+            IsPersistent = Input.RememberMe,
             RedirectUri = ReturnURL,
         };
 
