@@ -4,36 +4,6 @@
     ViewData["Title"] = "Login";
 }
 
-@section Styles {
-    <style>
-        /* Hide all steps by default: */
-        .tab {
-            display: none;
-        }
-
-        /* Make circles that indicate the steps of the form: */
-        .step {
-            height: 15px;
-            width: 15px;
-            margin: 0 2px;
-            background-color: rgb(112, 111, 112);
-            border: none;
-            border-radius: 50%;
-            display: inline-block;
-            opacity: 0.5;
-        }
-
-        /* Mark the active step: */
-        .step.active {
-            opacity: 1;
-        }
-
-        /* Mark the steps that are finished and valid: */
-        .step.finish {
-            background-color: #04AA6D;
-        }
-    </style>
-}
 
 <div class="row">
     <div class=" d-flex justify-content-center">
@@ -46,31 +16,33 @@
 
                 <div class="mb-3 row tab">
                     <div class="col-3">
-                        <label asp-for="Input.UserName" class=" form-label"></label>
+                        <label asp-for="Input.FirstName" class=" form-label"></label>
                     </div>
                     <div class="clo">
-                        <input type="text" asp-for="Input.UserName" class=" form-control" />
+                        <input type="text" asp-for="Input.FirstName" class=" form-control" />
+                        <span asp-validation-for="Input.FirstName" class=" text-danger"></span>
                     </div>
 
-                    <input type="text" class=" visually-hidden" id="modelState" value="@ViewData.ModelState" />
+                    <input type="text" class=" visually-hidden" id="1" value="@TempData["Error"]" />
                 </div>
 
-                <div class="mb-3 row tab">
+                <div class=" mb-3 row tab">
                     <div class="col-3">
-                        <label asp-for="Input.UserName" class=" form-label"></label>
+                        <label asp-for="Input2.LastName" class=" form-label"></label>
                     </div>
                     <div class="clo">
-                        <input type="text" asp-for="Input.UserName" class=" form-control" />
+                        <input type="text" value="Ray" asp-for="Input2.LastName" class=" form-control" />
+                        <span asp-validation-for="Input2.LastName" class=" text-danger"></span>
                     </div>
+
+                    <input type="text" class=" visually-hidden" id="2" value="@TempData["Error"]" />
                 </div>
 
-
-                <div class="row">
+                <div class=" row">
                     <div class="col-3">
                     </div>
                     <div class="col">
                         <div class="d-flex justify-content-end">
-
                             <button class="btn btn-info fs-6 px-3 mx-1" id="prevBtn"
                                 onclick="nextPrev(-1)">Previous</button>
                             <button id="nextBtn" class="btn btn-danger fs-6 px-3 mx-1"
@@ -95,55 +67,6 @@
     </div>
 </div>
 
-
 @section Scripts {
-    <script>
-        var currentTab = 0;
-        showTab(currentTab);
-
-        function showTab(n) {
-            var x = document.getElementsByClassName("tab");
-            x[n].style.display = "block";
-
-            if (n == 0) {
-                document.getElementById("prevBtn").style.display = "none";
-                document.getElementById("modelState").id = "modelState" + n;
-            } else {
-                document.getElementById("prevBtn").style.display = "inline";
-            }
-            if (n == (x.length - 1)) {
-                document.getElementById("nextBtn").innerHTML = "Submit";
-            } else {
-                document.getElementById("nextBtn").innerHTML = "Next";
-            }
-
-            fixStepIndicator(n)
-        }
-
-        function nextPrev(n) {
-            var x = document.getElementsByClassName("tab");
-
-            if (n == 1 && !validateForm()) return false;
-
-            x[currentTab].style.display = "none";
-            currentTab = currentTab + n;
-
-            if (currentTab >= x.length) {
-                document.getElementById("regForm").submit();
-                return false;
-            }
-
-            showTab(currentTab);
-        }
-
-        function fixStepIndicator(n) {
-            var i, x = document.getElementsByClassName("step");
-
-            for (i = 0; i < x.length; i++) {
-                x[i].className = x[i].className.replace(" active", "");
-            }
-
-            x[n].className += " active";
-        }
-    </script>
+    <script src="~/js/loginform.js"></script>
 }
