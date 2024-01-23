@@ -11,17 +11,15 @@ public class StepLogin : PageModel
     [BindProperty]
     public UserRegisterStep2Dto Input2 { get; set; } = new();
 
+
+
     public async Task<IActionResult> OnPostAsync()
     {
         await Task.Delay(0);
 
-        if (!ModelState.IsValid)
-        {
-            TempData["Error"] = "Error";
-            return Page();
-        }
+        if (!ModelState.IsValid) return Page();
 
-        TempData["Error"] = "";
+
         return Page();
     }
 }

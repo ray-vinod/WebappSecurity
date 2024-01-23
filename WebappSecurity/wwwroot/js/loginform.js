@@ -2,7 +2,7 @@ var currentTab = 0;
 showTab(currentTab);
 
 function showTab(n) {
-    var x = document.getElementsByClassName("tab");
+    let x = document.getElementsByClassName("tab");
     x[n].style.display = "block";
 
     if (n == 0) {
@@ -21,11 +21,10 @@ function showTab(n) {
 }
 
 function nextPrev(n) {
-    var x = document.getElementsByClassName("tab");
-    var error = document.getElementById(n).value;
-    console.log("Model State Validation Errors : " + error);
+    let x = document.getElementsByClassName("tab");
+    let error = document.getElementById("step-1").value;
 
-    if (n == 1 && error.length > 0) return false;
+    if (n == 1 && error === "false") return false;
 
     x[currentTab].style.display = "none";
     currentTab = currentTab + n;
@@ -39,7 +38,7 @@ function nextPrev(n) {
 }
 
 function fixStepIndicator(n) {
-    var i, x = document.getElementsByClassName("step");
+    let i, x = document.getElementsByClassName("step");
 
     for (i = 0; i < x.length; i++) {
         x[i].className = x[i].className.replace(" active", "");

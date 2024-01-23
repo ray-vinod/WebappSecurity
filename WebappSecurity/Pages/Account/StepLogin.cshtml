@@ -8,34 +8,48 @@
 <div class="row">
     <div class=" d-flex justify-content-center">
         <div class="col-6 p-4 border" style="background-color: rgb(231, 230, 230); border-radius:0.8rem">
+
             <form id="regForm" method="post">
 
+                <!-- One "tab" for each step in the form: -->
                 <h3>Register:</h3>
 
-                <!-- One "tab" for each step in the form: -->
+                <input type="text" id="tabIndex" asp-for="Input.TabIndex" class=" visually-hidden" />
 
-                <div class="mb-3 row tab">
-                    <div class="col-3">
-                        <label asp-for="Input.FirstName" class=" form-label"></label>
+                <div class="tab">
+                    <div class="mb-3 row">
+                        <div class="col-3">
+                            <label asp-for="Input.FirstName" class=" form-label"></label>
+                        </div>
+                        <div class="clo">
+                            <input type="text" asp-for="Input.FirstName" class=" form-control" />
+                            <span asp-validation-for="Input.FirstName" class=" text-danger"></span>
+                        </div>
                     </div>
-                    <div class="clo">
-                        <input type="text" asp-for="Input.FirstName" class=" form-control" />
-                        <span asp-validation-for="Input.FirstName" class=" text-danger"></span>
-                    </div>
-
-                    <input type="text" class=" visually-hidden" id="1" value="@TempData["Error"]" />
                 </div>
 
-                <div class=" mb-3 row tab">
-                    <div class="col-3">
-                        <label asp-for="Input2.LastName" class=" form-label"></label>
+                <div class="tab">
+                    <div class="mb-3 row">
+                        <div class="col-3">
+                            <label asp-for="Input2.LastName" class=" form-label"></label>
+                        </div>
+                        <div class="clo">
+                            <input type="text" asp-for="Input2.LastName" class=" form-control" />
+                            <span asp-validation-for="Input2.LastName" class=" text-danger"></span>
+                        </div>
                     </div>
-                    <div class="clo">
-                        <input type="text" value="Ray" asp-for="Input2.LastName" class=" form-control" />
-                        <span asp-validation-for="Input2.LastName" class=" text-danger"></span>
-                    </div>
+                </div>
 
-                    <input type="text" class=" visually-hidden" id="2" value="@TempData["Error"]" />
+                <div class="tab">
+                    <div class="mb-3 row">
+                        <div class="col-3">
+                            <label asp-for="Input2.Address" class=" form-label"></label>
+                        </div>
+                        <div class="clo">
+                            <input type="text" asp-for="Input2.Address" class=" form-control" />
+                            <span asp-validation-for="Input2.Address" class=" text-danger"></span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class=" row">
@@ -51,22 +65,83 @@
                     </div>
                 </div>
 
-
-                <!-- Circles which indicates the steps of the form: -->
-                <div class="row mb-0">
-                    <div class=" d-flex justify-content-center mt-4 text-center">
-                        <span class="step"></span>
-                        <span class="step"></span>
-                        <span class="step"></span>
-                        <span class="step"></span>
-                    </div>
-                </div>
-
             </form>
+
+            <!-- Circles which indicates the steps of the form: -->
+            <div class="row mb-0">
+                <div class=" d-flex justify-content-center mt-4 text-center">
+                    <span class="step"></span>
+                    <span class="step"></span>
+                    <span class="step"></span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="~/js/loginform.js"></script>
+    <partial name="../Shared/_ValidationScriptsPartial.cshtml"></partial>
+
+    <script type="text/javascript">
+
+        var currentTab = 0;
+
+        $(document).ready(() => {
+            currentTab = parseInt($('#tabIndex').val());
+            showTab(currentTab);
+        });
+
+        let formValidation = () => {
+            $("#regForm").validate();
+            return $("#regForm").valid();
+        }
+
+        let showTab = (n) => {
+            let x = $('.tab')
+            x[n].style.display = "block";
+
+            if (n == 0) {
+                $('#prevBtn').addClass('visually-hidden');
+            } else {
+                $('#prevBtn').removeClass('visually-hidden');
+            }
+
+            if (n == (x.length - 1)) {
+                //$('#nextBtn').val("Submit");
+                document.getElementById('nextBtn').innerHTML = "Submit";
+                console.log('Next button text changed to Submit');
+            }
+
+            fixStepIndicator(n)
+        }
+
+        let nextPrev = (n) => {
+            let x = $('.tab');
+            let error = formValidation();
+
+            if (n == 1 && !error) return false;
+
+            x[currentTab].style.display = "none";
+            currentTab += n;
+
+            if (currentTab >= x.length) {
+                $('#regForm').submit();
+                return false;
+            }
+
+            showTab(currentTab);
+        }
+
+        let fixStepIndicator = (n) => {
+            let i, x = $('.step');
+
+            for (i = 0; i < x.length; i++) {
+                x[i].className = x[i].className.replace(' active', '');
+            }
+
+            $('#tabIndex').val(currentTab);
+            x[n].className += " active";
+        }
+
+    </script>
 }
