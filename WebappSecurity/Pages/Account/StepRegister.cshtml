@@ -1,0 +1,190 @@
+@page
+@model StepRegisterModel
+@{
+    TempData["Titile"] = "Register";
+    var keys = ModelState.Keys;
+}
+
+<div class="row">
+    <div class=" d-flex justify-content-center">
+        <div class="col-6 p-4 border" style="background-color: rgb(231, 230, 230); border-radius:0.8rem">
+
+            <div class=" visually-hidden">
+                <form id="frmTab" method="post">
+                    <input id="tabIndex" asp-for="TabIndex">
+                </form>
+            </div>
+
+            <div class="tab">
+                <form id="frmRegister" method="post" asp-page-handler="Register">
+                    <div class="mb-3 row">
+                        <div class="col-4">
+                            <label asp-for="Input.Email" class=" form-label"></label>
+                        </div>
+                        <div class="col">
+                            <input type="text" asp-for="Input.Email" class=" form-control">
+                            <span asp-validation-for="Input.Email" class=" text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <div class="col-4">
+                            <label asp-for="Input.Password" class=" form-label"></label>
+                        </div>
+                        <div class="col">
+                            <input type="password" asp-for="Input.Password" autocomplete="on" class=" form-control">
+                            <ul class=" text-decoration-none list-unstyled">
+                                @if (keys.Count() > 0)
+                                {
+                                    var key = keys.Select(x => x == "Input.Password").ToString();
+
+                                    var errors = ModelState[key!]?.Errors.Select(x => x.ErrorMessage);
+                                    foreach (var error in errors!)
+                                    {
+                                        <li class=" text-danger">@error</li>
+                                    }
+                                }
+                                else
+                                {
+                                    <span asp-validation-for="Input.Password" class=" text-danger"></span>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <div class="col-4">
+                            <label asp-for="Input.ConfirmPassword" class=" form-label"></label>
+                        </div>
+                        <div class="col">
+                            <input type="password" asp-for="Input.ConfirmPassword" autocomplete="on"
+                                class=" form-control">
+                            <span asp-validation-for="Input.ConfirmPassword" class=" text-danger"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="tab">
+                <form method="post" id="frmUpdate" asp-page-handler="Update">
+                    <div class="mb-3 row">
+                        <div class="col-4">
+                            <label asp-for="Profile.FirstName"></label>
+                        </div>
+                        <div class="col">
+                            <input type="text" asp-for="Profile.FirstName" class=" form-control">
+                            <span asp-validation-for="Profile.FirstName" class=" text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <div class="col-4">
+                            <label asp-for="Profile.LastName"></label>
+                        </div>
+                        <div class="col">
+                            <input type="text" asp-for="Profile.LastName" class=" form-control">
+                            <span asp-validation-for="Profile.LastName" class=" text-danger"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class=" row">
+                <div class="col-3">
+                </div>
+                <div class="col">
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-info fs-6 px-3 mx-1" id="prevBtn"
+                            onclick="nextPrev(-1)">Previous</button>
+                        <button id="nextBtn" class="btn btn-danger fs-6 px-3 mx-1" onclick="nextPrev(1)">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-0 row">
+                <div class="d-flex justify-content-center">
+                    <span class="step"></span>
+                    <span class="step"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="../Shared/_ValidationScriptsPartial.cshtml"></partial>
+
+    <script type="text/javascript">
+        let currentTab = 0;
+
+        const showTab = (n) => {
+            const tabElement = document.getElementsByClassName('tab');
+            tabElement[n].style.display = "block";
+
+            if (n == 0) {
+                document.getElementById('prevBtn').style.display = "none";
+            } else {
+                document.getElementById('prevBtn').style.display = "inline";
+            }
+
+            if (n == (tabElement.length - 1)) {
+                document.getElementById('nextBtn').innerHTML = "Submit";
+            } else {
+                document.getElementById('nextBtn').innerHTML = "Next";
+            }
+
+            fixStepIndicator(n)
+        }
+
+        // jquery form validation
+        const formValidation = () => {
+            $('#frmRegister').validate();
+            return $('#frmRegister').valid();
+        }
+
+        const nextPrev = (n) => {
+            const tabElement = document.getElementsByClassName('tab');
+            const validationResult = formValidation();
+
+            if (n == 1 && !validationResult) return false;
+
+            tabElement[currentTab].style.display = "none";
+            currentTab = currentTab + n;
+
+            if (currentTab == 1) {
+                let form = document.getElementById('frmRegister');
+                let action = form.getAttribute('action');
+                const actionLink = `${action}&tabindex=${currentTab}`;
+
+                form.setAttribute('action', actionLink);
+                form.submit();
+                return false;
+            }
+
+            if (currentTab >= tabElement.length) {
+                document.getElementById('frmUpdate').submit();
+                return false;
+            }
+
+            showTab(currentTab);
+        }
+
+        const fixStepIndicator = (n) => {
+            const stepElement = document.getElementsByClassName('step');
+
+            for (let i = 0; i < stepElement.length; i++) {
+                stepElement[i].className = stepElement[i].className.replace(' active', '');
+            }
+
+            document.getElementById('tabIndex').value = currentTab;
+            stepElement[n].className += " active";
+        }
+
+        (function () {
+            const index = document.getElementById('tabIndex').value;
+            currentTab = parseInt(index);
+
+            showTab(currentTab);
+        })();
+    </script>
+}

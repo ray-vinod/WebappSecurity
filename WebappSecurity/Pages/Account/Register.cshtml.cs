@@ -21,7 +21,7 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
+    public async Task<IActionResult> OnPostUserAsync(string? returnUrl = null, int? tabindex = 0)
     {
         ReturnURL = returnUrl ?? "/Account/Login";
 
@@ -40,13 +40,7 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
         {
             foreach (var error in result.Errors)
             {
-                var errorCode = error.Code.Contains("FirstName") ? "FirstName"
-                    : error.Code.Contains("LastName") ? "LastName"
-                    : error.Code.Contains("Email") ? "Email"
-                    : error.Code.Contains("Password") ? "Password"
-                    : error.Code.Contains("ConfirmPassword") ? "ConfirmPassword"
-                    : String.Empty;
-
+                var errorCode = error.Code.Contains("Password") ? "Password" : "";
                 ModelState.AddModelError("Input." + errorCode, error.Description);
             }
 
