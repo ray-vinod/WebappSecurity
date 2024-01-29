@@ -99,7 +99,6 @@
                         <button class="btn btn-info fs-6 px-4 me-2" id="prevBtn"
                             onclick="nextPrev(-1)">Previous</button>
                         <button id="nextBtn" class="btn btn-danger fs-6 px-4" onclick="nextPrev(1)">Next</button>
-                        @* <button id="nextBtn" class="btn btn-danger fs-6 px-3 mx-1">Next</button> *@
                     </div>
                 </div>
             </div>
@@ -145,17 +144,7 @@
             return $('#frmRegister').valid();
         }
 
-        @* document.getElementById('nextBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-
-        const form = document.getElementById('frmRegister');
-        let action = form.getAttribute('action');
-        action = action.replace('tabindex=0', `tabindex=${currentTab}`);
-        form.setAttribute('action', action);
-        form.submit();
-        }); *@
-
-                    const nextPrev = (n) => {
+        const nextPrev = (n) => {
             const tabElement = document.getElementsByClassName('tab');
             const validationResult = formValidation();
 

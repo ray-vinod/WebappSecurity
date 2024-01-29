@@ -30,35 +30,27 @@ public class StepRegisterModel(UserManager<AppUser> userManager) : PageModel
         TabIndex = tabindex;
         ReturnUrl = returnUrl;
 
-        var keys = ModelState.Keys;
-        foreach (var key in keys)
-        {
-            if (key != "Input.Email" && key != "Input.Password")
-            {
-                var input = ModelState.Where(x => x.Key == key).FirstOrDefault();
-                input.Value!.Errors.Clear();
-                input.Value.ValidationState = ModelValidationState.Valid;
-            }
-        }
+        //model errors clear excepts the current form's model
+        Error([.. ModelState.Keys], "Input", ["Email", "Password"]);
 
-        if (!ModelState.IsValid) return Error();
+        if (!ModelState.IsValid)
+        {
+            Tabs();
+            return Page();
+        }
 
         AppUser newUser = new() { Email = Input.Email, UserName = Input.Email };
 
         var result = await _userManager.CreateAsync(newUser, Input.Password!);
         if (!result.Succeeded)
         {
-            foreach (var error in result.Errors)
-            {
-                string errorCode = error.Code.Contains("Password") ? "Password"
-                : error.Code.Contains("UserName") ? "Email"
-                : "";
-                ModelState.AddModelError($"Input.{errorCode}", error.Description);
-            }
-
-            Error();
+            // there is only dubplicate user name error
+            Error(result, "Input", ["UserName"]);
+            Tabs();
+            return Page();
         }
 
+        //  this is set for next form to find the current user
         Profile.Email = newUser.Email;
 
         ViewData["error"] = "";
@@ -70,42 +62,77 @@ public class StepRegisterModel(UserManager<AppUser> userManager) : PageModel
         TabIndex = tabindex;
         ReturnUrl = returnUrl;
 
-        var keys = ModelState.Keys;
-        foreach (var key in keys)
-        {
-            if (key != "Profile.FirstName" && key != "Profile.LastName")
-            {
-                var input = ModelState.Where(x => x.Key == key).FirstOrDefault();
-                input.Value!.Errors.Clear();
-                input.Value.ValidationState = ModelValidationState.Valid;
-            }
-        }
+        //model errors clear excepts the current form's model
+        Error([.. ModelState.Keys], "Profile", ["FirstName", "LastName"]);
 
-        if (!ModelState.IsValid) return Error();
+        if (!ModelState.IsValid)
+        {
+            Tabs();
+            return Page();
+        }
 
         var user = await _userManager.FindByEmailAsync(Profile.Email!);
 
-        if (user == null) return Error();
-
+        if (user == null)
+        {
+            Tabs();
+            return Page();
+        }
 
         user.FirstName = Profile.FirstName!;
         user.LastName = Profile.LastName!;
+
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
         {
-
+            Error(result, "Profile", ["FirstName", "LastName"]);
+            Tabs();
+            return Page();
         }
 
         return RedirectToPage("/account/login");
     }
 
-    private IActionResult Error()
+    private void Tabs()
     {
         TabIndex--;
         ViewData["error"] = TabIndex;
-        return Page();
     }
 
+    // Error generate for this fields 'errorFor'
+    private void Error(IdentityResult? result, string prefix, string[] errorFor)
+    {
+        foreach (var error in result!.Errors)
+        {
+            string errorCode = "";
+            foreach (var key in errorFor)
+            {
+                errorCode = error.Code.Contains(key) ? key : "";
+                if (key == "UserName")
+                {
+                    errorCode = error.Code.Contains(key) ? "Email" : "";
+                }
 
+                ModelState.AddModelError($"{prefix}.{errorCode}", error.Description);
+            }
+        }
+    }
+
+    //Error Clear except this fields 'exceptKeys'
+    private void Error(string[] keys, string prefix, string[] exceptKeys)
+    {
+        foreach (var key in keys)
+        {
+            foreach (var eKey in exceptKeys)
+            {
+                if (key != $"{prefix}.{eKey}" && key != $"{prefix}.{eKey}")
+                {
+                    var input = ModelState.Where(x => x.Key == key).FirstOrDefault();
+                    input.Value!.Errors.Clear();
+                    input.Value.ValidationState = ModelValidationState.Valid;
+                }
+            }
+        }
+    }
 
 }
