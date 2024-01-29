@@ -21,6 +21,8 @@ public class UserRegisterDto
 
 public class UserProfileDto
 {
+    public string? Email { get; set; }
+
     [Required]
     [Display(Name = "First Name")]
     [StringLength(55, MinimumLength = 3)]

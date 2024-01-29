@@ -1,0 +1,72 @@
+@page
+@model TestModel
+@{
+    TempData["Title"] = "Test";
+}
+
+
+<div class="row">
+    <div class="d-flex justify-content-center">
+        <div class="col-7 border p-3">
+            <input asp-for="TabIndex" class=" visually-hidden">
+
+            <form method="post" id="frmTest" asp-page="/account/test" asp-page-handler="Register"
+                asp-route-tabindex="0">
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Input.Email" class=" form-label"></label>
+                    </div>
+                    <div class="col">
+                        <input asp-for="Input.Email" class=" form-control">
+                        <span asp-validation-for="Input.Email" class=" text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Input.Password" class=" form-label"></label>
+                    </div>
+                    <div class="col">
+                        <input asp-for="Input.Password" autocomplete="on" class=" form-control">
+                        <span asp-validation-for="Input.Password" class=" text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Input.ConfirmPassword" class=" form-label"></label>
+                    </div>
+                    <div class="col">
+                        <input asp-for="Input.ConfirmPassword" autocomplete="on" class=" form-control">
+                        <span asp-validation-for="Input.ConfirmPassword" class=" text-danger"></span>
+                    </div>
+                </div>
+            </form>
+
+            <div class="row">
+                <div class="d-flex justify-content-end">
+                    <button id="btnNext" class="btn btn-info fs-6 px-5">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="../Shared/_ValidationScriptsPartial.cshtml"></partial>
+
+    <script type="text/javascript">
+        var currentTab = 0;
+        document.getElementById('btnNext').addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const form = document.getElementById('frmTest');
+            let action = form.getAttribute('action');
+            action = action.replace('tabindex=0', 'tabindex=1');
+            form.setAttribute('action', action);
+
+            form.submit();
+        });
+    </script>
+}

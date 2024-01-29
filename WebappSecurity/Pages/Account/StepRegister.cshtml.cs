@@ -21,14 +21,14 @@ public class StepRegisterModel(UserManager<AppUser> userManager) : PageModel
     public string? ReturnUrl { get; set; }
 
 
-
-    public void OnGet() { }
-
+    public void OnGet()
+    {
+    }
 
     public async Task<IActionResult> OnPostRegisterAsync(string? returnUrl = null, int tabindex = 0)
     {
         TabIndex = tabindex;
-        ReturnUrl = returnUrl ?? "/Acccount/StepRegister";
+        ReturnUrl = returnUrl;
 
         var keys = ModelState.Keys;
         foreach (var key in keys)
@@ -41,7 +41,7 @@ public class StepRegisterModel(UserManager<AppUser> userManager) : PageModel
             }
         }
 
-        if (!ModelState.IsValid) return RedirectToPage(ReturnUrl);
+        if (!ModelState.IsValid) return Error();
 
         AppUser newUser = new() { Email = Input.Email, UserName = Input.Email };
 
@@ -56,16 +56,56 @@ public class StepRegisterModel(UserManager<AppUser> userManager) : PageModel
                 ModelState.AddModelError($"Input.{errorCode}", error.Description);
             }
 
-            return RedirectToPage(ReturnUrl); ;
+            Error();
         }
 
+        Profile.Email = newUser.Email;
 
-        return RedirectToPage(ReturnUrl); ;
+        ViewData["error"] = "";
+        return Page(); ;
     }
 
-    public IActionResult OnPostUpdateAsync(int tabindex = 0)
+    public async Task<IActionResult> OnPostUpdateAsync(string? returnUrl = null, int tabindex = 0)
     {
         TabIndex = tabindex;
-        return RedirectToPage("/Index");
+        ReturnUrl = returnUrl;
+
+        var keys = ModelState.Keys;
+        foreach (var key in keys)
+        {
+            if (key != "Profile.FirstName" && key != "Profile.LastName")
+            {
+                var input = ModelState.Where(x => x.Key == key).FirstOrDefault();
+                input.Value!.Errors.Clear();
+                input.Value.ValidationState = ModelValidationState.Valid;
+            }
+        }
+
+        if (!ModelState.IsValid) return Error();
+
+        var user = await _userManager.FindByEmailAsync(Profile.Email!);
+
+        if (user == null) return Error();
+
+
+        user.FirstName = Profile.FirstName!;
+        user.LastName = Profile.LastName!;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+
+        }
+
+        return RedirectToPage("/account/login");
     }
+
+    private IActionResult Error()
+    {
+        TabIndex--;
+        ViewData["error"] = TabIndex;
+        return Page();
+    }
+
+
+
 }

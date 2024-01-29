@@ -9,14 +9,13 @@
     <div class=" d-flex justify-content-center">
         <div class="col-6 p-4 border" style="background-color: rgb(231, 230, 230); border-radius:0.8rem">
 
-            <div class=" visually-hidden">
-                <form id="frmTab" method="post">
-                    <input id="tabIndex" asp-for="TabIndex">
-                </form>
-            </div>
+            <input id="tabIndex" asp-for="TabIndex" class=" visually-hidden">
+            <label id="error" class=" visually-hidden">@ViewData["error"]</label>
 
             <div class="tab">
-                <form id="frmRegister" method="post" asp-page-handler="Register">
+                <form method="post" id="frmRegister" asp-page="/account/stepregister" asp-page-handler="Register"
+                    asp-route-tabindex="0">
+
                     <div class="mb-3 row">
                         <div class="col-4">
                             <label asp-for="Input.Email" class=" form-label"></label>
@@ -33,22 +32,22 @@
                         </div>
                         <div class="col">
                             <input type="password" asp-for="Input.Password" autocomplete="on" class=" form-control">
-                            <ul class=" text-decoration-none list-unstyled">
-                                @if (keys.Count() > 0)
-                                {
-                                    var key = keys.Select(x => x == "Input.Password").ToString();
+                            @* <ul class=" text-decoration-none list-unstyled">
+                            @if (keys.Count() > 0)
+                            {
+                            var key = keys.Select(x => x == "Input.Password").ToString();
 
-                                    var errors = ModelState[key!]?.Errors.Select(x => x.ErrorMessage);
-                                    foreach (var error in errors!)
-                                    {
-                                        <li class=" text-danger">@error</li>
-                                    }
-                                }
-                                else
-                                {
-                                    <span asp-validation-for="Input.Password" class=" text-danger"></span>
-                                }
-                            </ul>
+                            var errors = ModelState[key!]?.Errors.Select(x => x.ErrorMessage);
+                            foreach (var error in errors!)
+                            {
+                            <li class=" text-danger">@error</li>
+                            }
+                            }
+                            else
+                            {
+                            <span asp-validation-for="Input.Password" class=" text-danger"></span>
+                            }
+                            </ul> *@
                         </div>
                     </div>
 
@@ -62,11 +61,14 @@
                             <span asp-validation-for="Input.ConfirmPassword" class=" text-danger"></span>
                         </div>
                     </div>
+
                 </form>
             </div>
 
             <div class="tab">
-                <form method="post" id="frmUpdate" asp-page-handler="Update">
+                <form method="post" id="frmUpdate" asp-page="/account/stepregister" asp-page-handler="Update"
+                    asp-route-tabindex="0">
+                    <input asp-for="Profile.Email" class=" visually-hidden">
                     <div class="mb-3 row">
                         <div class="col-4">
                             <label asp-for="Profile.FirstName"></label>
@@ -94,9 +96,10 @@
                 </div>
                 <div class="col">
                     <div class="d-flex justify-content-end">
-                        <button class="btn btn-info fs-6 px-3 mx-1" id="prevBtn"
+                        <button class="btn btn-info fs-6 px-4 me-2" id="prevBtn"
                             onclick="nextPrev(-1)">Previous</button>
-                        <button id="nextBtn" class="btn btn-danger fs-6 px-3 mx-1" onclick="nextPrev(1)">Next</button>
+                        <button id="nextBtn" class="btn btn-danger fs-6 px-4" onclick="nextPrev(1)">Next</button>
+                        @* <button id="nextBtn" class="btn btn-danger fs-6 px-3 mx-1">Next</button> *@
                     </div>
                 </div>
             </div>
@@ -142,7 +145,17 @@
             return $('#frmRegister').valid();
         }
 
-        const nextPrev = (n) => {
+        @* document.getElementById('nextBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const form = document.getElementById('frmRegister');
+        let action = form.getAttribute('action');
+        action = action.replace('tabindex=0', `tabindex=${currentTab}`);
+        form.setAttribute('action', action);
+        form.submit();
+        }); *@
+
+                    const nextPrev = (n) => {
             const tabElement = document.getElementsByClassName('tab');
             const validationResult = formValidation();
 
@@ -152,17 +165,22 @@
             currentTab = currentTab + n;
 
             if (currentTab == 1) {
-                let form = document.getElementById('frmRegister');
+                const form = document.getElementById('frmRegister');
                 let action = form.getAttribute('action');
-                const actionLink = `${action}&tabindex=${currentTab}`;
+                action = action.replace('tabindex=0', `tabindex=${currentTab}`);
+                form.setAttribute('action', action);
 
-                form.setAttribute('action', actionLink);
                 form.submit();
                 return false;
             }
 
             if (currentTab >= tabElement.length) {
-                document.getElementById('frmUpdate').submit();
+                const form = document.getElementById('frmUpdate');
+                let action = form.getAttribute('action');
+                action = action.replace('tabindex=0', `tabindex=${currentTab}`);
+                form.setAttribute('action', action);
+
+                form.submit();
                 return false;
             }
 
@@ -183,6 +201,11 @@
         (function () {
             const index = document.getElementById('tabIndex').value;
             currentTab = parseInt(index);
+
+            const error = document.getElementById('error').innerHTML;
+            if (error != "") {
+                currentTab = parseInt(error);
+            }
 
             showTab(currentTab);
         })();
