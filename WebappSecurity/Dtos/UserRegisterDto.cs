@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using WebappSecurity.Constants.Enums;
 
 namespace WebappSecurity.Dtos;
 public class UserRegisterDto
@@ -10,7 +11,8 @@ public class UserRegisterDto
     [Required]
     [DataType(DataType.Password)]
     [StringLength(20, MinimumLength = 8)]
-    [RegularExpression(@"^(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,20}$", ErrorMessage = "Your password contains at least One capital letter, one special character and one digit.")]
+    [RegularExpression(@"^(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,20}$",
+        ErrorMessage = "In the valid password must have at least one capital letter, one special character and one digit")]
     public string? Password { get; set; }
 
     [Display(Name = "Re-Password")]
@@ -40,16 +42,11 @@ public class UserProfileDto
 
     public string? State { get; set; }
 
-    [RegularExpression(@"^(\\+\\d{1,3}[- ]?)?\\d{10}$")]
+    [RegularExpression(@"^[+]?((\d{1,3})?[- .(]?)?(\d{3}[- .)]?){2}\d{4}$",
+        ErrorMessage = "Invalid Phonenumber")]
     public string? Phone { get; set; }
 
     [Required]
+    [Display(Name = "Profile Image")]
     public IFormFile? ProfileImage { get; set; }
-}
-
-public enum Gender
-{
-    Male,
-    Female,
-    Others
 }

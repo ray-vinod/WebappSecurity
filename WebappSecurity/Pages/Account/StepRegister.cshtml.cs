@@ -23,6 +23,8 @@ public class StepRegisterModel(UserManager<AppUser> userManager) : PageModel
 
     public void OnGet()
     {
+        TabIndex = 2;
+        Profile.Email = "vinod@gmail.com";
     }
 
     public async Task<IActionResult> OnPostRegisterAsync(string? returnUrl = null, int tabindex = 0)
@@ -79,18 +81,34 @@ public class StepRegisterModel(UserManager<AppUser> userManager) : PageModel
             return Page();
         }
 
+        // if (!string.IsNullOrEmpty(Profile.FirstName) &&
+        //     !string.IsNullOrEmpty(Profile.LastName) &&
+        //     !string.IsNullOrEmpty(Profile.Gender.ToString()))
+        // {
+        //     return Page();
+        // }
+
         user.FirstName = Profile.FirstName!;
         user.LastName = Profile.LastName!;
+        user.Gender = Profile.Gender;
 
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
         {
-            Error(result, "Profile", ["FirstName", "LastName"]);
+            Error(result, "Profile", ["FirstName", "LastName", "Gender"]);
             Tabs();
             return Page();
         }
 
         return RedirectToPage("/account/login");
+    }
+
+
+    public async Task<IActionResult> OnPostUploadAsync()
+    {
+        await Task.Delay(0);
+
+        return Page();
     }
 
     private void Tabs()
