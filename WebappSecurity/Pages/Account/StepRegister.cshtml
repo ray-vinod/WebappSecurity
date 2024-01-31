@@ -121,7 +121,8 @@
                             <label asp-for="Profile.Phone" class=" form-label"></label>
                         </div>
                         <div class="col">
-                            <input id="phone" type="tel" asp-for="Profile.Phone" class=" form-control">
+                            <input id="phone" type="tel" class=" form-control">
+                            <input id="phone_input" asp-for="Profile.Phone" class=" form-control visually-hidden">
                             <span id="phone_validation" asp-validation-for="Profile.Phone" class=" text-danger"></span>
                         </div>
                     </div>
@@ -132,6 +133,9 @@
                         </div>
                         <div class="col">
                             <input id="country_selector" type="text" class=" form-control">
+                            <input id="country" type="text" asp-for="Profile.Country"
+                                class=" form-control visually-hidden">
+                            <span asp-validation-for="Profile.Country" class=" text-danger"></span>
                         </div>
                     </div>
 
@@ -148,16 +152,20 @@
             </form>
 
             <form method="post" id="frmUpload" asp-page="/account/stepregister" asp-page-handler="Upload"
-                asp-route-tabindex="0">
+                asp-route-tabindex="0" enctype="multipart/form-data">
 
                 <div class="tab">
                     <div class="mb-3 row">
-                        <div class="col-4">
-                            <label asp-for="Profile.ProfileImage" class=" form-label"></label>
+                        <div class="col-5">
+                            <label asp-for="Profile.ProfileImage" class=" mb-3 form-label"></label>
+                            <input id="image_file" type="file" asp-for="Profile.ProfileImage" class="form-control-file">
+                            <span asp-validation-for="Profile.ProfileImage" class=" text-danger"></span>
                         </div>
                         <div class="col">
-                            <input type="file" asp-for="Profile.ProfileImage" class=" form-control">
-                            <span asp-validation-for="Profile.ProfileImage" class=" text-danger"></span>
+                            <div class="text-center">
+                                <img id="image_preview" src="~/images/userIcon.jpeg" class="rounded mb-4 img-thumbnail"
+                                    alt="profile image">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -226,8 +234,6 @@
             const tabElement = document.getElementsByClassName('tab');
             const validationResult = formValidation();
 
-            const countery = $("#country_selector").countrySelect("getSelectedCountryData");
-
             if (n == 1 && !validationResult) return false;
 
             tabElement[currentTab].style.display = "none";
@@ -235,26 +241,25 @@
             currentTab = currentTab + n;
 
             if (currentTab == 1 && forwardTab < currentTab) {
-                const form = document.getElementById('frmRegister');
-                let action = form.getAttribute('action');
-                action = action.replace('tabindex=0', `tabindex=${currentTab}`);
-                form.setAttribute('action', action);
-
-                form.submit();
+                getFormActionUpdate('frmRegister');
                 return false;
             }
 
             if (currentTab >= tabElement.length) {
-                const form = document.getElementById('frmUpdate');
-                let action = form.getAttribute('action');
-                action = action.replace('tabindex=0', `tabindex=${currentTab}`);
-                form.setAttribute('action', action);
-
-                form.submit();
+                getFormActionUpdate('frmUpdate');
                 return false;
             }
 
             showTab(currentTab);
+        }
+
+        const getFormActionUpdate = (formName) => {
+            const form = document.getElementById(formName);
+            let action = form.getAttribute('action');
+            action = action.replace('tabindex=0', `tabindex=${currentTab}`);
+            form.setAttribute('action', action);
+
+            form.submit();
         }
 
         const fixStepIndicator = (n) => {
@@ -294,19 +299,16 @@
 
         input.addEventListener("countrychange", () => {
             const countryData = iti.getSelectedCountryData();
-            console.log(countryData);
+            //console.log(countryData);
 
         });
 
         input.addEventListener('focusout', () => {
-            const countryData = iti.getSelectedCountryData();
-            console.log(countryData);
-
             const isValid = iti.isValidNumber();
+
             if (isValid == true) {
-                console.log("valid number");
                 const number = iti.getNumber();
-                console.log(number);
+                document.getElementById('phone_input').setAttribute('value', number);
             }
             else {
                 const error = iti.getValidationError();
@@ -317,7 +319,20 @@
         });
         /* phone end*/
 
+        /* Profile Image Preview */
+        document.getElementById('image_file').addEventListener('change', (e) => {
+            const image_preview = document.getElementById('image_preview');
 
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                image_preview.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        });
+        /* End */
 
 
         $(document).ready(function () {
@@ -338,9 +353,14 @@
 
             });
 
-            var countryData = $("#country_selector").countrySelect("getSelectedCountryData");
-            console.log("this is from counter field");
-            console.log(currentTab);
+            const countryData = $("#country_selector").countrySelect("getSelectedCountryData");
+            $('#country').val(countryData.iso2);
+
+            $('#country_selector').change(function () {
+                const countryData = $("#country_selector").countrySelect("getSelectedCountryData");
+                $('#country').val(countryData.iso2);
+            });
+
             /* country end*/
         });
     </script>

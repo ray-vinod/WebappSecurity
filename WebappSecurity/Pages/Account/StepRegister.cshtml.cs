@@ -23,7 +23,7 @@ public class StepRegisterModel(UserManager<AppUser> userManager) : PageModel
 
     public void OnGet()
     {
-        TabIndex = 2;
+        TabIndex = 1;
         Profile.Email = "vinod@gmail.com";
     }
 
