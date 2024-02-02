@@ -1,5 +1,8 @@
+using System.Data.Common;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WebappSecurity.Dtos;
 using WebappSecurity.Models.Identity;
@@ -12,41 +15,144 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
     [BindProperty]
     public RegisterDto Input { get; set; } = new();
 
-    public string? ReturnURL { get; set; }
+    [BindProperty]
+    public ProfileDto Profile { get; set; } = new();
 
-    public IActionResult OnGet(string? returnUrl = null)
+    [BindProperty]
+    public int Initialtab { get; set; }
+
+    [BindProperty]
+    public string CurrentUser { get; set; } = "";
+
+    public string? ReturnUrl { get; set; }
+
+
+    public void OnGet()
     {
-        ReturnURL = returnUrl ?? "/Index";
+        Initialtab = 0;
+        CurrentUser = "noemail@info.com";
+    }
+
+    public async Task<IActionResult> OnPostUserRegisterAsync(int tabindex, string? returnUrl)
+    {
+        Initialtab = tabindex;
+        ReturnUrl = returnUrl;
+
+        Error([.. ModelState.Keys], "Input", ["Email", "Password"]);
+
+        if (!ModelState.IsValid)
+        {
+            Initialtab--;
+            return Page();
+        }
+
+        AppUser appUser = new()
+        {
+            FirstName = "",
+            LastName = "",
+            Email = Input.Email,
+            UserName = Input.Email,
+            Country = "",
+            CountryCode = ""
+        };
+
+        var result = await _userManager.CreateAsync(appUser, Input.Password!);
+        if (!result.Succeeded)
+        {
+            Error(result, "Input", ["UserName"]);
+
+            Initialtab--;
+            return Page();
+        }
+
+        CurrentUser = appUser.Email ?? "";
+
+        return Page(); ;
+    }
+
+    public async Task<IActionResult> OnPostUpdateAsync(int tabindex, string? returnUrl)
+    {
+        Initialtab = tabindex;
+        ReturnUrl = returnUrl;
+
+        Error([.. ModelState.Keys], "Profile", ["FirstName", "LastName"]);
+
+        if (!ModelState.IsValid)
+        {
+            Initialtab--;
+            return Page();
+        }
+
+        var user = await _userManager.FindByEmailAsync(CurrentUser);
+
+        if (user == null)
+        {
+            Initialtab--;
+            return Page();
+        }
+
+        // if (!string.IsNullOrEmpty(Profile.FirstName) &&
+        //     !string.IsNullOrEmpty(Profile.LastName) &&
+        //     !string.IsNullOrEmpty(Profile.Gender.ToString()))
+        // {
+        //     return Page();
+        // }
+
+        user.FirstName = Profile.FirstName!;
+        user.LastName = Profile.LastName!;
+        user.Gender = Profile.Gender;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            Error(result, "Profile", ["FirstName", "LastName", "Gender"]);
+
+            Initialtab--;
+            return Page();
+        }
 
         return Page();
     }
 
-    public async Task<IActionResult> OnPostUserAsync(string? returnUrl = null, int? tabindex = 0)
+    public IActionResult OnPostUploadAsync(int tabindex, string? returnUrl)
     {
-        ReturnURL = returnUrl ?? "/Account/Login";
+        ReturnUrl = returnUrl;
+        Initialtab = tabindex;
 
-        if (!ModelState.IsValid) return Page();
-
-        var user = new AppUser()
-        {
-            FirstName = Input.FirstName!,
-            LastName = Input.LastName!,
-            Email = Input.Email,
-            UserName = Input.Email,
-        };
-
-        var result = await _userManager.CreateAsync(user, Input.Password!);
-        if (!result.Succeeded)
-        {
-            foreach (var error in result.Errors)
-            {
-                var errorCode = error.Code.Contains("Password") ? "Password" : "";
-                ModelState.AddModelError("Input." + errorCode, error.Description);
-            }
-
-            return Page();
-        }
-
-        return RedirectToPage(ReturnURL);
+        return Page();
     }
+
+    // Error generate for this fields 'errorFor'
+    private void Error(IdentityResult? result, string prefix, string[] errorFor)
+    {
+        foreach (var error in result!.Errors)
+        {
+            if (errorFor.Select(key => $"{prefix}.{error.Code}".Contains(key)).First())
+            {
+                if (errorFor.FirstOrDefault(x => x == "UserName") != null)
+                {
+                    ModelState.AddModelError($"{prefix}.Email", error.Description);
+                }
+                else
+                {
+                    ModelState.AddModelError($"{prefix}.{error.Code}", error.Description);
+                }
+            }
+        }
+    }
+
+    //Error Clear except this fields 'exceptKeys'
+    private void Error(string[] keys, string prefix, string[] exceptKeys)
+    {
+        foreach (var key in keys)
+        {
+            if (!exceptKeys.Any(x => $"{prefix}.{x}".Contains(key)))
+            {
+                var field = ModelState[key];
+                field!.Errors.Clear();
+                field!.ValidationState = ModelValidationState.Valid;
+            }
+        }
+    }
+
 }

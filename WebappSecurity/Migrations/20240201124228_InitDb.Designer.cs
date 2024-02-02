@@ -11,7 +11,7 @@ using WebappSecurity.Data;
 namespace WebappSecurity.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240113043702_InitDb")]
+    [Migration("20240201124228_InitDb")]
     partial class InitDb
     {
         /// <inheritdoc />
@@ -160,6 +160,14 @@ namespace WebappSecurity.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
@@ -169,6 +177,12 @@ namespace WebappSecurity.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ImagePath")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
@@ -192,6 +206,9 @@ namespace WebappSecurity.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PhoneCode")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("TEXT");
 
@@ -199,6 +216,9 @@ namespace WebappSecurity.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("SecurityStamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("State")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("TwoFactorEnabled")
