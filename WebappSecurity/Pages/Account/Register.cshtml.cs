@@ -27,6 +27,7 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
 
     public IActionResult OnGet()
     {
+        Initialtab = 2;
         return Page();
     }
 
@@ -135,7 +136,7 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
         {
-            Error(result, "Profile", ["FirstName", "LastName"]);
+            Error(result, "Profile", ["ProfileImage"]);
 
             Initialtab--;
             return Page();

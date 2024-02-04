@@ -163,7 +163,7 @@
             </form>
 
             <form method="post" id="frmUpload" asp-page="/Account/Register" asp-page-handler="Upload"
-                asp-route-tabindex="0">
+                asp-route-tabindex="0" enctype="multipart/form-data">
 
                 <!-- 'Tab-4' update profile image --->
                 <div class="tab">
@@ -384,6 +384,17 @@
 
             showTab(currentTab);
 
+            let nameTrim = (cName) => {
+                let start = cName.indexOf('(');
+                let end = cName.length;
+
+                let omit = cName.substring(start - 1, end);
+                let countryInput = cName.replace(omit, '');
+
+                return countryInput;
+            }
+
+
             // country start
             $('#country_select').countrySelect({
                 defaultCountry: "np",
@@ -391,14 +402,20 @@
             });
 
             const countryData = $("#country_select").countrySelect("getSelectedCountryData");
-            $('#Profile_Country').val(countryData.name);
+
+            const cName = nameTrim(countryData.name);
+
+            $('#Profile_Country').val(cName);
             $('#Profile_CountryCode').val(countryData.iso2);
 
             $('#country_select').change(function () {
                 const countryData = $("#country_select").countrySelect("getSelectedCountryData");
-                $('#Profile_Country').val(countryData.name);
+                const cName = nameTrim(countryData.name);
+
+                $('#Profile_Country').val(cName);
                 $('#Profile_CountryCode').val(countryData.iso2);
             });
+
 
             // end
         });
