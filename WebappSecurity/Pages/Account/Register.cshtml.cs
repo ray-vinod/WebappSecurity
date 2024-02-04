@@ -1,5 +1,3 @@
-using System.Data.Common;
-using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -27,13 +25,12 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
     public string? ReturnUrl { get; set; }
 
 
-    public void OnGet()
+    public IActionResult OnGet()
     {
-        Initialtab = 0;
-        CurrentUser = "noemail@info.com";
+        return Page();
     }
 
-    public async Task<IActionResult> OnPostUserRegisterAsync(int tabindex, string? returnUrl)
+    public async Task<IActionResult> OnPostRegisterAsync(int tabindex, string? returnUrl)
     {
         Initialtab = tabindex;
         ReturnUrl = returnUrl;
@@ -59,13 +56,13 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
         var result = await _userManager.CreateAsync(appUser, Input.Password!);
         if (!result.Succeeded)
         {
-            Error(result, "Input", ["UserName"]);
+            Error(result, "Input", ["DuplicateUserName", "Email"]);
 
             Initialtab--;
             return Page();
         }
 
-        CurrentUser = appUser.Email ?? "";
+        CurrentUser = appUser.Email!;
 
         return Page(); ;
     }
@@ -91,35 +88,60 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
             return Page();
         }
 
-        // if (!string.IsNullOrEmpty(Profile.FirstName) &&
-        //     !string.IsNullOrEmpty(Profile.LastName) &&
-        //     !string.IsNullOrEmpty(Profile.Gender.ToString()))
-        // {
-        //     return Page();
-        // }
-
         user.FirstName = Profile.FirstName!;
         user.LastName = Profile.LastName!;
         user.Gender = Profile.Gender;
+        user.PhoneNumber = Profile.Phone;
+        user.PhoneCode = Profile.PhoneCode;
+        user.Country = Profile.Country;
+        user.CountryCode = Profile.CountryCode;
+        user.State = Profile.State;
 
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
         {
-            Error(result, "Profile", ["FirstName", "LastName", "Gender"]);
+            Error(result, "Profile", ["FirstName", "LastName"]);
 
             Initialtab--;
             return Page();
         }
 
+        CurrentUser = user.Email!;
         return Page();
     }
 
-    public IActionResult OnPostUploadAsync(int tabindex, string? returnUrl)
+    public async Task<IActionResult> OnPostUploadAsync(int tabindex, string? returnUrl)
     {
         ReturnUrl = returnUrl;
         Initialtab = tabindex;
 
-        return Page();
+        Error([.. ModelState.Keys], "Profile", ["ProfileImage"]);
+
+        if (!ModelState.IsValid)
+        {
+            Initialtab--;
+            return Page();
+        }
+
+        var user = await _userManager.FindByEmailAsync(CurrentUser);
+        if (user == null)
+        {
+            Initialtab--;
+            return Page();
+        }
+
+        user.ImagePath = "";
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            Error(result, "Profile", ["FirstName", "LastName"]);
+
+            Initialtab--;
+            return Page();
+        }
+
+        return RedirectToPage("/account/login");
     }
 
     // Error generate for this fields 'errorFor'
@@ -127,9 +149,9 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
     {
         foreach (var error in result!.Errors)
         {
-            if (errorFor.Select(key => $"{prefix}.{error.Code}".Contains(key)).First())
+            if (errorFor.Any(x => x.Contains(error.Code)))
             {
-                if (errorFor.FirstOrDefault(x => x == "UserName") != null)
+                if (error.Code == "DuplicateUserName")
                 {
                     ModelState.AddModelError($"{prefix}.Email", error.Description);
                 }

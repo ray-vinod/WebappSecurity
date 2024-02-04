@@ -12,13 +12,13 @@
 
 <div class="row">
     <div class=" d-flex justify-content-center">
-        <div class="col-6 p-4 border" style="background-color: rgb(231, 230, 230); border-radius:0.8rem">
+        <div class="col-6 p-4 border" style="background-color: rgb(243, 209, 241); border-radius:0.8rem">
 
             <div class=" visually-hidden">
                 <span id="tabIndex">@Model.Initialtab</span>
             </div>
 
-            <form method="post" id="frmRegister" asp-page="/Account/Register" asp-page-handler="UserRegister"
+            <form method="post" id="frmRegister" asp-page="/Account/Register" asp-page-handler="Register"
                 asp-route-tabindex="0">
 
                 <!-- 'Tab-1' user register  --->
@@ -36,34 +36,31 @@
 
                     <div class="mb-3 row">
                         <div class="col-3">
-                            <label asp-for="Input.Password" class=" form-label"></label>
+                            <label id="" asp-for="Input.Password" class=" form-label"></label>
                         </div>
                         <div class="col">
-                            <input id="password" type="password" asp-for="Input.Password" autocomplete="on"
-                                class=" form-control">
-                            <ul class=" text-decoration-none list-unstyled">
-                                @if (keys.Any(x => x == "Input.Password"))
+                            <input type="password" asp-for="Input.Password" autocomplete="on" class=" form-control">
+                            @if (keys.Any(x => x == "Input.Password"))
+                            {
+                                var errors = ModelState["Input.Password"]!.Errors.Select(x => x.ErrorMessage).ToList();
+                                foreach (var error in ModelState["Input.Password"]!.Errors)
                                 {
-                                    var errors = ModelState["Input.Password"]!.Errors.Select(x => x.ErrorMessage).ToList();
-                                    foreach (var error in ModelState["Input.Password"]!.Errors)
-                                    {
-                                        <li class=" text-danger mb-2">@error.ErrorMessage</li>
-                                    }
+                                    <span class=" text-danger">@error.ErrorMessage</span>
                                 }
-                                else
-                                {
-                                    <span asp-validation-for="Input.Password" class=" text-danger"></span>
-                                }
-                            </ul>
+                            }
+                            else
+                            {
+                                <span asp-validation-for="Input.Password" class=" text-danger"></span>
+                            }
                         </div>
                     </div>
 
-                    <div class="mb-3 row">
+                    <div class="mb-5 row">
                         <div class="col-3">
                             <label asp-for="Input.ConfirmPassword" class=" form-label"></label>
                         </div>
                         <div class="col">
-                            <input id="rePassword" type="password" asp-for="Input.ConfirmPassword" autocomplete="on"
+                            <input type="password" asp-for="Input.ConfirmPassword" autocomplete="on"
                                 class=" form-control">
                             <span asp-validation-for="Input.ConfirmPassword" class=" text-danger"></span>
                         </div>
@@ -74,10 +71,10 @@
 
             </form>
 
-            <form method="post" id="frmUpdate" asp-page="/Account/Register" asp-page-handler="Update" tabindex="0">
-
+            <form method="post" id="frmUpdate" asp-page="/Account/Register" asp-page-handler="Update"
+                asp-route-tabindex="0">
                 <div class=" visually-hidden">
-                    <input asp-for="CurrentUser" class=" form-control">
+                    <input type="text" asp-for="CurrentUser" class=" form-control">
                 </div>
 
                 <!-- 'Tab-2' update user details --->
@@ -87,7 +84,8 @@
                             <label asp-for="Profile.FirstName"></label>
                         </div>
                         <div class="col">
-                            <input type="text" asp-for="Profile.FirstName" class=" form-control">
+                            <input name="Profile.FirstName" type="text" asp-for="Profile.FirstName"
+                                class=" form-control">
                             <span asp-validation-for="Profile.FirstName" class=" text-danger"></span>
                         </div>
                     </div>
@@ -102,19 +100,19 @@
                         </div>
                     </div>
 
-                    <div class="mb-3 row">
+                    <div class="mb-5 row">
                         <div class="col-3">
-                            <label asp-for="Profile.Gender"></label>
+                            <span class=" form-label">Gender</span>
                         </div>
                         <div class="col">
                             <div class="d-flex  justify-content-around">
                                 @foreach (var gender in Enum.GetValues(typeof(Gender)))
                                 {
                                     <div class="form-check">
-                                        <input asp-for="Profile.Gender" data-val="true" class="form-check-input"
-                                            type="radio" value="@gender" id="@gender"
+                                        <input asp-for="Profile.Gender" class="form-check-input me-1" type="radio"
+                                            value="@gender" id="Profile_Gender_@gender"
                                             checked="@((gender as Gender?) == Model.Profile.Gender)">
-                                        <label class="form-check-label">@gender</label>
+                                        <span asp-for="Profile_Gender" class="form-check-label">@gender</span>
                                     </div>
                                 }
                             </div>
@@ -126,13 +124,15 @@
                 <!-- 'Tab-3' update user's contact --->
                 <div class="tab">
                     <div class="mb-3 row">
-                        <div class="col-4">
+                        <div class="col-3">
                             <label asp-for="Profile.Phone" class=" form-label"></label>
                         </div>
                         <div class="col">
-                            <input id="phone" type="tel" class=" form-control">
-                            <input id="phone_input" asp-for="Profile.Phone" class=" form-control visually-hidden">
-                            <span id="phone_validation" asp-validation-for="Profile.Phone" class=" text-danger"></span>
+                            <input id="phone" name="phone" type="tel" class=" form-control">
+                            <input asp-for="Profile.Phone" class=" form-control visually-hidden">
+                            <input asp-for="Profile.PhoneCode" class=" form-control visually-hidden">
+                            <span id="Profile_Phone_Error" asp-validation-for="Profile.Phone"
+                                class=" text-danger"></span>
                         </div>
                     </div>
 
@@ -141,19 +141,19 @@
                             <label asp-for="Profile.Country" class=" form-label"></label>
                         </div>
                         <div class="col">
-                            <input id="country_selector" type="text" class=" form-control">
-                            <input id="country" type="text" asp-for="Profile.Country"
-                                class=" form-control visually-hidden">
+                            <input id="country_select" type="text" class=" form-control">
+                            <input type="text" asp-for="Profile.Country" class=" form-control visually-hidden">
+                            <input type="text" asp-for="Profile.CountryCode" class=" form-control visually-hidden">
                             <span asp-validation-for="Profile.Country" class=" text-danger"></span>
                         </div>
                     </div>
 
-                    <div class="mb-3 row">
+                    <div class="mb-5 row">
                         <div class="col-3">
                             <label asp-for="Profile.State" class=" form-label"></label>
                         </div>
                         <div class="col">
-                            <input type="text" asp-for="Profile.State" class=" form-control">
+                            <input name="Profile.State" type="text" asp-for="Profile.State" class=" form-control">
                             <span asp-validation-for="Profile.State" class=" text-danger"></span>
                         </div>
                     </div>
@@ -162,20 +162,21 @@
 
             </form>
 
-            <form method="post" id="frmUpload" asp-page="/Account/Register" asp-page-handler="Upload" tabindex="0">
+            <form method="post" id="frmUpload" asp-page="/Account/Register" asp-page-handler="Upload"
+                asp-route-tabindex="0">
 
                 <!-- 'Tab-4' update profile image --->
                 <div class="tab">
                     <div class="mb-3 row">
                         <div class="col-5">
                             <label asp-for="Profile.ProfileImage" class=" mb-3 form-label"></label>
-                            <input id="image_file" type="file" asp-for="Profile.ProfileImage" class="form-control-file">
+                            <input type="file" asp-for="Profile.ProfileImage" class="form-control-file">
                             <span asp-validation-for="Profile.ProfileImage" class=" text-danger"></span>
                         </div>
                         <div class="col">
                             <div class="text-center">
                                 <img id="image_preview" src="~/images/defaultUser.jpeg"
-                                    class="rounded mb-4 img-thumbnail" alt="profile image">
+                                    class="rounded mb-5 img-thumbnail" alt="profile image">
                             </div>
                         </div>
                     </div>
@@ -222,6 +223,12 @@
     <script type="text/javascript">
         let currentTab = 0;
 
+        const setIdForCountry = () => {
+            let element = document.getElementsByClassName('iti__search-input');
+            element.attr('id', 'country_select_input');
+            element.attr('name', 'country_select_input');
+        }
+
         const showTab = (n) => {
             const tabElement = document.getElementsByClassName('tab');
             tabElement[n].style.display = "block";
@@ -258,16 +265,24 @@
             const forwardTab = currentTab;
             currentTab += n;
 
-            const pwd = document.getElementById('password').value;
-
-            if (currentTab == 1 && forwardTab < currentTab && pwd != 'P######1') {
+            if (currentTab == 1 && forwardTab < currentTab) {
                 getFormActionUpdate('frmRegister');
                 return false;
             }
 
-            if (forwardTab > currentTab) {
-                document.getElementById('password').value = "P######1";
-                document.getElementById('rePassword').value = "P######1";
+            // this is only set false password to fiels on backward move
+            if (forwardTab > currentTab && currentTab == 0) {
+                const email = document.getElementById('Input_Email').value;
+                let pwd = document.getElementById('Input_Password').value;
+
+                if (email == '') {
+                    document.getElementById('Input_Email').value = "noemail@info.com";
+                }
+
+                if (pwd == '') {
+                    document.getElementById('Input_Password').value = "########";
+                    document.getElementById('Input_ConfirmPassword').value = "########";
+                }
             }
 
             if (currentTab == (tabElement.length - 1)) {
@@ -276,7 +291,7 @@
             }
 
             if (currentTab >= tabElement.length) {
-                getFormActionUpdate('frmUpdate');
+                getFormActionUpdate('frmUpload');
                 return false;
             }
 
@@ -331,20 +346,25 @@
             const isValid = iti.isValidNumber();
 
             if (isValid == true) {
-                const number = iti.getNumber();
-                document.getElementById('phone_input').setAttribute('value', number);
+                let number = iti.getNumber();
+                const countryData = iti.getSelectedCountryData();
+                number = number.replace(`+${countryData.dialCode}`, '');
+
+                document.getElementById('Profile_Phone').setAttribute('value', number);
+                document.getElementById('Profile_PhoneCode').setAttribute('value', countryData.dialCode);
+
             }
             else {
                 const error = iti.getValidationError();
                 if (error == intlTelInputUtils.validationError.TOO_SHORT) {
-                    document.getElementById('phone_validation').setAttribute('value', 'Number is too short');
+                    document.getElementById('Profile_Phone_Error').setAttribute('value', 'Number is too short');
                 }
             }
         });
         // phone end
 
         // Profile Image Preview
-        document.getElementById('image_file').addEventListener('change', (e) => {
+        document.getElementById('Profile_ProfileImage').addEventListener('change', (e) => {
             const image_preview = document.getElementById('image_preview');
 
             const file = e.target.files[0];
@@ -365,17 +385,19 @@
             showTab(currentTab);
 
             // country start
-            $('#country_selector').countrySelect({
+            $('#country_select').countrySelect({
                 defaultCountry: "np",
 
             });
 
-            const countryData = $("#country_selector").countrySelect("getSelectedCountryData");
-            $('#country').val(countryData.iso2);
+            const countryData = $("#country_select").countrySelect("getSelectedCountryData");
+            $('#Profile_Country').val(countryData.name);
+            $('#Profile_CountryCode').val(countryData.iso2);
 
-            $('#country_selector').change(function () {
-                const countryData = $("#country_selector").countrySelect("getSelectedCountryData");
-                $('#country').val(countryData.iso2);
+            $('#country_select').change(function () {
+                const countryData = $("#country_select").countrySelect("getSelectedCountryData");
+                $('#Profile_Country').val(countryData.name);
+                $('#Profile_CountryCode').val(countryData.iso2);
             });
 
             // end
