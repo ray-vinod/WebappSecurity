@@ -2,13 +2,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using WebappSecurity.Dtos;
 using WebappSecurity.Models.Identity;
 
 namespace WebappSecurity.Pages.Account;
-public class RegisterModel(UserManager<AppUser> userManager) : PageModel
+public class RegisterModel(UserManager<AppUser> userManager, IWebHostEnvironment env) : PageModel
 {
+    #region privateField
     private readonly UserManager<AppUser> _userManager = userManager;
+    private readonly IWebHostEnvironment _env = env;
 
     [BindProperty]
     public RegisterDto Input { get; set; } = new();
@@ -24,13 +28,14 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
 
     public string? ReturnUrl { get; set; }
 
+    #endregion
 
     public IActionResult OnGet()
     {
-        Initialtab = 2;
         return Page();
     }
 
+    #region Register
     public async Task<IActionResult> OnPostRegisterAsync(int tabindex, string? returnUrl)
     {
         Initialtab = tabindex;
@@ -57,6 +62,15 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
         var result = await _userManager.CreateAsync(appUser, Input.Password!);
         if (!result.Succeeded)
         {
+            // if duplicate user attempt, then
+            var user = await _userManager.FindByEmailAsync(Input.Email!);
+            var validPassword = await _userManager.CheckPasswordAsync(user!, Input.Password!);
+            if (validPassword)
+            {
+                CurrentUser = user?.Email!;
+                return Page();
+            }
+
             Error(result, "Input", ["DuplicateUserName", "Email"]);
 
             Initialtab--;
@@ -67,7 +81,9 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
 
         return Page(); ;
     }
+    #endregion
 
+    #region Update
     public async Task<IActionResult> OnPostUpdateAsync(int tabindex, string? returnUrl)
     {
         Initialtab = tabindex;
@@ -110,7 +126,9 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
         CurrentUser = user.Email!;
         return Page();
     }
+    #endregion
 
+    #region Upload
     public async Task<IActionResult> OnPostUploadAsync(int tabindex, string? returnUrl)
     {
         ReturnUrl = returnUrl;
@@ -123,7 +141,7 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
             Initialtab--;
             return Page();
         }
-
+        CurrentUser = "vinod@gmail.com";
         var user = await _userManager.FindByEmailAsync(CurrentUser);
         if (user == null)
         {
@@ -131,7 +149,14 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
             return Page();
         }
 
-        user.ImagePath = "";
+        Directory.CreateDirectory(Path.Combine(_env.WebRootPath, "images"));
+        var fileName = $"avatar_{user!.Email}.png";
+        var path = Path.Combine(_env.WebRootPath, "images", fileName);
+
+        using var image = Image.Load(Profile.ProfileImage!.OpenReadStream());
+        image.Mutate(x => x.Resize(150, 150));
+        image.SaveAsPng(path);
+        user.ImagePath = "/images/" + fileName;
 
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
@@ -144,7 +169,9 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
 
         return RedirectToPage("/account/login");
     }
+    #endregion
 
+    #region Error
     // Error generate for this fields 'errorFor'
     private void Error(IdentityResult? result, string prefix, string[] errorFor)
     {
@@ -177,5 +204,5 @@ public class RegisterModel(UserManager<AppUser> userManager) : PageModel
             }
         }
     }
-
+    #endregion
 }

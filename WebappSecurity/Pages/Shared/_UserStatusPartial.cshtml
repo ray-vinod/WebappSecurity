@@ -1,7 +1,10 @@
 @if (User == null || User.Identity == null || User.Identity.IsAuthenticated)
 {
+    var pic = "/images/avatar_" + User?.Identity?.Name + ".png";
+
     <form method="post" class="form-inline" asp-page="/Account/Logout">
     Welcome @User?.Identity?.Name
+    <img width="35" height="35" src="@pic" class="rounded-circle" />
     <input type="submit" value="Logout" class="btn btn-link text-decoration-none text-black">
 </form>
 }

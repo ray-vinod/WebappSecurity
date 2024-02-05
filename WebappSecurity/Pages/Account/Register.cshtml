@@ -175,7 +175,7 @@
                         </div>
                         <div class="col">
                             <div class="text-center">
-                                <img id="image_preview" src="~/images/defaultUser.jpeg"
+                                <img id="image_preview" src="~/images/avatar_default.png"
                                     class="rounded mb-5 img-thumbnail" alt="profile image">
                             </div>
                         </div>
@@ -273,16 +273,13 @@
             // this is only set false password to fiels on backward move
             if (forwardTab > currentTab && currentTab == 0) {
                 const email = document.getElementById('Input_Email').value;
-                let pwd = document.getElementById('Input_Password').value;
 
-                if (email == '') {
-                    document.getElementById('Input_Email').value = "noemail@info.com";
-                }
-
-                if (pwd == '') {
+                if (email != '') {
                     document.getElementById('Input_Password').value = "########";
                     document.getElementById('Input_ConfirmPassword').value = "########";
                 }
+
+                return false;
             }
 
             if (currentTab == (tabElement.length - 1)) {
